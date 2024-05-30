@@ -22,11 +22,25 @@ if [ -z "$inputPort" ]; then
   exit 1
 fi
 
+if [[ ! $inputPort =~ ^[0-9]+$ ]]; then
+  echo -e "${RED_BACKGROUND} ERROR ${RESET_STYLE}"
+  echo -e "${RED_COLOR}Port must be a number.${RESET_STYLE}"
+  echo ""
+  exit 1
+fi
+
+if (($inputPort > 65535 || $inputPort < 0)); then
+  echo -e "${RED_BACKGROUND} ERROR ${RESET_STYLE}"
+  echo -e "${RED_COLOR}Port must between 0 and 65535.${RESET_STYLE}"
+  echo ""
+  exit 1
+fi
+
 ports=$(ss -tulpn | grep LISTEN | awk '{ print $5 }' | awk -F: '{ print $NF }' | sort -n | uniq)
 
 for port in $ports; do
   if [ "$inputPort" = "$port" ]; then
-    echo -e "${RED_BACKGROUND} FAILED ${RESET_STYLE}"
+    echo -e "${RED_BACKGROUND} ERROR ${RESET_STYLE}"
     echo -e "${RED_COLOR}This port $inputPort is currently in use!${RESET_STYLE}"
     echo ""
     exit 1
